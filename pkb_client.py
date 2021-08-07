@@ -1,7 +1,7 @@
 import socket
 import pickle
 
-ipDef = "127.0.1.1"
+ip = "127.0.1.1"
 
 class PiClient:
     def __init__(self, ip):
