@@ -6,7 +6,7 @@ class PKBServer:
     def __init__(self, port, multiThread=False):
         self.HEADER = 64
         self.PORT = port
-        self.SERVER = socket.gethostbyname(socket.gethostname())
+        self.SERVER = ''# socket.gethostbyname(socket.gethostname())
         self.ADDR = (self.SERVER, self.PORT)
         self.FORMAT = 'utf-8'
         self.DISCONNECT_MESSAGE = "!DISCONNECT"
