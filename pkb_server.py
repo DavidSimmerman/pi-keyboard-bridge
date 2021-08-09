@@ -2,11 +2,11 @@ import socket
 import threading
 import pickle
 
-class PiServer:
-    def __init__(self):
+class PKBServer:
+    def __init__(self, port, multiThread=False):
         self.HEADER = 64
-        self.PORT = 5050
-        self.SERVER = socket.gethostname()
+        self.PORT = port
+        self.SERVER = socket.gethostbyname(socket.gethostname())
         self.ADDR = (self.SERVER, self.PORT)
         self.FORMAT = 'utf-8'
         self.DISCONNECT_MESSAGE = "!DISCONNECT"
@@ -18,19 +18,21 @@ class PiServer:
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind(self.ADDR)
 
+        if multiThread == True: self.startMT()
+        else: self.startST()
+
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected.")
 
-        connected = True
-        while connected:
+        while True:
             msg_length = conn.recv(self.HEADER).decode(self.FORMAT)
             if msg_length:
                 msg_length = int(msg_length)
                 msg = pickle.loads(conn.recv(msg_length))
                 if msg == self.DISCONNECT_MESSAGE:
-                    connected = False
+                    break
                 if msg == self.SHUTDOWN_MESSAGE:
-                    self.run_server = False
+                    break
                     connected = False
                 
                 print(f"[{addr}] {msg}")
@@ -43,7 +45,15 @@ class PiServer:
         self.server.close()
         print("[SHUTTING DOWN] shut down complete.")
 
-    def start(self):
+    def startST(self):
+        print("[STARTING] server is starting...")
+        self.server.listen(1)
+        print(f"[LISTENING] Server is listening on {self.SERVER}")
+        conn, addr = self.server.accept()
+        self.handle_client(conn, addr)
+        self.shutDown()
+
+    def startMT(self):
         print("[STARTING] server is starting...")
         self.server.listen()
         print(f"[LISTENING] Server is listening on {self.SERVER}")

@@ -4,9 +4,9 @@ import pickle
 ip = "192.168.1.241"
 
 class PiClient:
-    def __init__(self, ip):
+    def __init__(self, ip, port):
         self.HEADER = 64
-        self.PORT = 5050
+        self.PORT = port
         self.FORMAT = 'utf-8'
         self.DISCONNECT_MESSAGE = "!DISCONNECT"
         self.SHUTDOWN_MESSAGE = "!SHUTDOWN"
