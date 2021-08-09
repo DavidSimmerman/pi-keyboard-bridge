@@ -6,7 +6,7 @@ class PiServer:
     def __init__(self):
         self.HEADER = 64
         self.PORT = 5050
-        self.SERVER = "127.0.0.1"
+        self.SERVER = "127.0.1.1"
         self.ADDR = (self.SERVER, self.PORT)
         self.FORMAT = 'utf-8'
         self.DISCONNECT_MESSAGE = "!DISCONNECT"
