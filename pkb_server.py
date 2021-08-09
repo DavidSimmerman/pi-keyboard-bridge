@@ -3,7 +3,7 @@ import threading
 import pickle
 
 class PKBServer:
-    def __init__(self, port, multiThread=False):
+    def __init__(self, port, start=True):
         self.HEADER = 64
         self.PORT = port
         self.SERVER = ''# socket.gethostbyname(socket.gethostname())
@@ -18,8 +18,7 @@ class PKBServer:
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind(self.ADDR)
 
-        if multiThread == True: self.startMT()
-        else: self.startST()
+        if start == True: self.start()
 
     def handle_client(self, conn, addr):
         print(f"[NEW CONNECTION] {addr} connected.")
@@ -45,15 +44,7 @@ class PKBServer:
         self.server.close()
         print("[SHUTTING DOWN] shut down complete.")
 
-    def startST(self):
-        print("[STARTING] server is starting...")
-        self.server.listen(1)
-        print(f"[LISTENING] Server is listening on {self.SERVER}")
-        conn, addr = self.server.accept()
-        self.handle_client(conn, addr)
-        self.shutDown()
-
-    def startMT(self):
+    def start(self):
         print("[STARTING] server is starting...")
         self.server.listen()
         print(f"[LISTENING] Server is listening on {self.SERVER}")
