@@ -31,8 +31,8 @@ class PKBServer:
                 if msg == self.DISCONNECT_MESSAGE:
                     break
                 if msg == self.SHUTDOWN_MESSAGE:
+                    self.run_server = False
                     break
-                    connected = False
                 
                 print(f"[{addr}] {msg}")
             
