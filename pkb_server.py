@@ -3,14 +3,16 @@ import threading
 import pickle
 
 class PKBServer:
-    def __init__(self, port, start=True):
+    def __init__(self, port, handle_message, start=True):
         self.HEADER = 64
         self.PORT = port
-        self.SERVER = ''# socket.gethostbyname(socket.gethostname())
+        self.SERVER = '' # socket.gethostbyname(socket.gethostname())
         self.ADDR = (self.SERVER, self.PORT)
         self.FORMAT = 'utf-8'
         self.DISCONNECT_MESSAGE = "!DISCONNECT"
         self.SHUTDOWN_MESSAGE = "!SHUTDOWN"
+
+        self.handle_message = handle_message
 
         self.run_server = True
 
@@ -30,9 +32,11 @@ class PKBServer:
                 msg = pickle.loads(conn.recv(msg_length))
                 if msg == self.DISCONNECT_MESSAGE:
                     break
-                if msg == self.SHUTDOWN_MESSAGE:
+                elif msg == self.SHUTDOWN_MESSAGE:
                     self.shutDown()
                     break
+                else:
+                    self.handle_message()
                 
                 print(f"[{addr}] {msg}")
             
