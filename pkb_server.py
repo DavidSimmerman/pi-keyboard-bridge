@@ -31,7 +31,7 @@ class PKBServer:
                 if msg == self.DISCONNECT_MESSAGE:
                     break
                 if msg == self.SHUTDOWN_MESSAGE:
-                    self.run_server = False
+                    self.shutDown()
                     break
                 
                 print(f"[{addr}] {msg}")
@@ -53,6 +53,5 @@ class PKBServer:
             thread = threading.Thread(target=self.handle_client, args=(conn, addr))
             thread.start()
             print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
-        self.shutDown()
 
 
