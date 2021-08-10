@@ -3,7 +3,7 @@ import pickle
 
 ip = "192.168.1.241"
 
-class PiClient:
+class PKBClient:
     def __init__(self, ip, port):
         self.HEADER = 64
         self.PORT = port
