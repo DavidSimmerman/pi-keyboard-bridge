@@ -36,7 +36,7 @@ class PKBServer:
                     self.shutDown()
                     break
                 else:
-                    self.handle_message()
+                    self.handle_message(msg)
                 
                 print(f"[{addr}] {msg}")
             
