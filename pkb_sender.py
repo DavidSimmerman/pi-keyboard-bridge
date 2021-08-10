@@ -1,4 +1,3 @@
-import platform
 from pynput.keyboard import Key, Listener
 import pkb_client as pkbc
 
@@ -163,3 +162,11 @@ pkbSender = PKBSender()
 
 with Listener(on_press=pkbSender.pressKey, on_release=pkbSender.liftKey) as listener:
     listener.join()
+
+
+
+# TODO: switch between profiles
+# TODO: cancel key presses when sending
+# TODO: add a sound when switching
+
+# TODO: figure out why running through console will not work
