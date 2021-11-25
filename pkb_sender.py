@@ -116,8 +116,8 @@ class PKBSender():
         keyboard.add_hotkey(self.HOTKEYS_STRING, self.activate_sender, suppress=True, trigger_on_release=True)
 
         # Connect to client
-        self.client = pkbc.PKBClient(IP, PORT)
-        self.client.connect()
+        # self.client = pkbc.PKBClient(IP, PORT)
+        # self.client.connect()
 
     def get_all_keys_down(self):
         return list(self.keys_down)+list(self.command_keys_down)
