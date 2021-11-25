@@ -111,9 +111,11 @@ class PKBSender():
             'up':82,
         }
 
+        # Setup Hotkey
         self.HOTKEYS_STRING = '+'.join(self.HOTKEYS_LIST)
         keyboard.add_hotkey(self.HOTKEYS_STRING, self.activate_sender, suppress=True, trigger_on_release=True)
 
+        # Connect to client
         self.client = pkbc.PKBClient(IP, PORT)
         self.client.connect()
 
@@ -149,6 +151,7 @@ class PKBSender():
             else: self.keys_down.remove(key)
         else: return
 
+        # Check if the only keys that are down are the hotkey keys
         if all(k in self.get_all_keys_down() for k in self.HOTKEYS_LIST) and len(self.get_all_keys_down()) == len(self.HOTKEYS_LIST):
             self.command_keys_down = set()
             self.keys_down = set()
