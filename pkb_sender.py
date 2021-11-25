@@ -1,4 +1,4 @@
-from pynput.keyboard import Key, Listener
+import keyboard
 import pkb_client as pkbc
 
 IP = "192.168.1.241"
@@ -6,15 +6,17 @@ PORT = 5560
 
 class PKBSender():
     def __init__(self):
-        self.commandKeysDown = set()
-        self.keysDown = set()
-        self.commandKeyMapping = {
+        self.is_actice = False
+        self.command_keys_down = set()
+        self.keys_down = set()
+        self.HOTKEYS_LIST = ('f24','s')
+        self.COMMAND_KEY_MAPPING = {
             "ctrl":1,
             "shift":2,
             "alt": 4,
             "cmd": 8
         }
-        self.keyMapping = {
+        self.KEY_MAPPING = {
             'a':4,
             'b':5,
             'c':6,
@@ -74,7 +76,7 @@ class PKBSender():
             '{': 47,
             ']': 48,
             '}': 48,
-            '\\\\\\\\': 49,
+            '\\': 49,
             '|': 49,
             ';': 51,
             ':': 51,
@@ -109,64 +111,77 @@ class PKBSender():
             'up':82,
         }
 
+        self.HOTKEYS_STRING = '+'.join(self.HOTKEYS_LIST)
+        keyboard.add_hotkey(self.HOTKEYS_STRING, self.activate_sender, suppress=True, trigger_on_release=True)
+
         self.client = pkbc.PKBClient(IP, PORT)
         self.client.connect()
 
-    # Parse the sets and turn them into the List needed to send to the pi
-    def generateKeyList(self):
-        keyArray = [0,0,0,0,0,0,0,0]
-        # Get sum of command keys for first slot
-        for k in self.commandKeysDown:
-            keyArray[0] += self.commandKeyMapping[k]
-        # Fill remaining slots with keys
-        for i in range(len(self.keysDown)):
-            if i >= 6: break # max 6 keys
-            key = list(self.keysDown)[i] # Set needs to be converted to list
-            digit = self.keyMapping[key]
-            keyArray[i+2] = digit
+    def get_all_keys_down(self):
+        return list(self.keys_down)+list(self.command_keys_down)
 
-        return keyArray
+    def activate_sender(self):
+        if self.is_actice == True: return
+        self.is_actice = True
+        self.active_hook = keyboard.hook(self.send_key, suppress=True)
+        print("ACTIVATED")
+    
+    def deactivate_sender(self):
+        self.is_active = False
+        keyboard.unhook(self.active_hook)
+        print("DEACTIVATED")
+
+    def send_key(self, event):
+        key = event.name.lower()
+        if event.event_type == 'down':
+            # Return if they key already exists
+            if key in self.keys_down or key in self.command_keys_down: return
+            # Separate command keys from normal keys
+            if key in self.COMMAND_KEY_MAPPING.keys(): self.command_keys_down.add(key)
+            else:
+                if len(self.keys_down) >= 6: return # Max 6 keys at a time
+                self.keys_down.add(key)
+        elif event.event_type == 'up':
+            # Return if key doesn't exist to prevent errors
+            if key not in self.keys_down and key not in self.command_keys_down: return
+            # Separate command keys from normal keys
+            if key in self.COMMAND_KEY_MAPPING.keys(): self.command_keys_down.remove(key)
+            else: self.keys_down.remove(key)
+        else: return
+
+        if all(k in self.get_all_keys_down() for k in self.HOTKEYS_LIST) and len(self.get_all_keys_down()) == len(self.HOTKEYS_LIST):
+            self.command_keys_down = set()
+            self.keys_down = set()
+            self.deactivate_sender()
+        print(self._generate_key_list())
+        # self.client.send({'key_press': self.generateKeyList()})
+
+     # Parse the sets and turn them into the List needed to send to the pi
+    def _generate_key_list(self):
+        key_array = [0,0,0,0,0,0,0,0]
+        # Get sum of command keys for first slot
+        for k in self.command_keys_down:
+            key_array[0] += self.COMMAND_KEY_MAPPING[k]
+        # Fill remaining slots with keys
+        for i in range(len(self.keys_down)):
+            if i >= 6: break # max 6 keys
+            key = list(self.keys_down)[i] # Set needs to be converted to list
+            if key not in self.KEY_MAPPING.keys():
+                print("UNDEFINED KEY: " + key)
+                continue
+            digit = self.KEY_MAPPING[key]
+            key_array[i+2] = digit
+
+        return key_array
 
     # Parse Key from raw event input
-    def parseKey(self, key):
+    def _parse_key(self, key):
         key = str(key).replace("'", "").lower()
         key = key.replace('key.', '')
         return key
 
-    def sendKeys(self):
-        self.client.send({'key_press': self.generateKeyList()})
-
-    def pressKey(self, key):
-        key = self.parseKey(key)
-        # Return if the key already exists
-        if key in self.keysDown or key in self.commandKeysDown: return
-        # Separate command keys from normal keys
-        if key in self.commandKeyMapping.keys(): self.commandKeysDown.add(key)
-        else: 
-            if len(self.keysDown) >= 6: return # Max 6 keys at a time
-            self.keysDown.add(key)
-
-        self.sendKeys()
-
-    def liftKey(self, key):
-        key = self.parseKey(key)
-        # Return if key doesn't exist to prevent errors
-        if key not in self.keysDown and key not in self.commandKeysDown: return
-        # Separate command keys from normal keys
-        if key in self.commandKeyMapping.keys(): self.commandKeysDown.remove(key)
-        else: self.keysDown.remove(key)
-
-        self.sendKeys()
-
-pkbSender = PKBSender()
-
-with Listener(on_press=pkbSender.pressKey, on_release=pkbSender.liftKey) as listener:
-    listener.join()
+pkb_sender = PKBSender()
+keyboard.wait()
 
 
-
-# TODO: switch between profiles
-# TODO: cancel key presses when sending
 # TODO: add a sound when switching
-
-# TODO: figure out why running through console will not work
