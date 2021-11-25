@@ -1,12 +1,16 @@
 import keyboard
+import winsound
+
 import pkb_client as pkbc
 
 IP = "192.168.1.241"
 PORT = 5560
 
+SOUND_PATH = './pi-keyboard-bridge/sounds/'
+
 class PKBSender():
     def __init__(self):
-        self.is_actice = False
+        self.is_active = False
         self.command_keys_down = set()
         self.keys_down = set()
         self.HOTKEYS_LIST = ('f24','s')
@@ -123,14 +127,16 @@ class PKBSender():
         return list(self.keys_down)+list(self.command_keys_down)
 
     def activate_sender(self):
-        if self.is_actice == True: return
-        self.is_actice = True
+        if self.is_active == True: return
+        self.is_active = True
         self.active_hook = keyboard.hook(self.send_key, suppress=True)
+        winsound.PlaySound(SOUND_PATH+'low_swoosh.wav', winsound.SND_FILENAME | winsound.SND_ASYNC)
         print("ACTIVATED")
     
     def deactivate_sender(self):
         self.is_active = False
         keyboard.unhook(self.active_hook)
+        winsound.PlaySound(SOUND_PATH+'high_swoosh.wav', winsound.SND_FILENAME | winsound.SND_ASYNC)
         print("DEACTIVATED")
 
     def send_key(self, event):
@@ -171,6 +177,7 @@ class PKBSender():
             key = list(self.keys_down)[i] # Set needs to be converted to list
             if key not in self.KEY_MAPPING.keys():
                 print("UNDEFINED KEY: " + key)
+                winsound.PlaySound(SOUND_PATH+'bad_key.wav', winsound.SND_FILENAME | winsound.SND_ASYNC)
                 continue
             digit = self.KEY_MAPPING[key]
             key_array[i+2] = digit
