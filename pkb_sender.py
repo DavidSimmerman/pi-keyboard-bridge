@@ -162,8 +162,9 @@ class PKBSender():
             self.command_keys_down = set()
             self.keys_down = set()
             self.deactivate_sender()
-        print(self._generate_key_list())
-        self.client.send({'key_press': self._generate_key_list()})
+        key_output = self._generate_key_list()
+        print(key_output)
+        self.client.send({'key_press': key_output})
 
      # Parse the sets and turn them into the List needed to send to the pi
     def _generate_key_list(self):

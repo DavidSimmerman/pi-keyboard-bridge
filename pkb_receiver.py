@@ -1,3 +1,4 @@
+from time import sleep
 import pkb_server as pkbs
 
 def write_report(report):
