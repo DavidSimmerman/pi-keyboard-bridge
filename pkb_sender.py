@@ -18,7 +18,8 @@ class PKBSender():
             "ctrl":1,
             "shift":2,
             "alt": 4,
-            "cmd": 8
+            "cmd": 8,
+            "left windows": 8
         }
         self.KEY_MAPPING = {
             'a':4,
@@ -195,4 +196,4 @@ pkb_sender = PKBSender()
 keyboard.wait()
 
 
-# TODO: add a sound when switching
+# TODO: add a sound when switching asdf
